@@ -2,6 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\Day;
+use App\Models\Lecturer;
+use App\Models\Subject;
+use App\Models\TimeSlot;
+use App\Models\Timetable;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +22,11 @@ class TimetableEntryFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'timetable_id' => Timetable::factory(),
+            'subject_id' => Subject::factory(),
+            'lecturer_id' => Lecturer::factory(),
+            'day_id' => Day::factory(),
+            'time_slot_id' => TimeSlot::factory(),
         ];
     }
 }

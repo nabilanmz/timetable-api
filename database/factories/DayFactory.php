@@ -5,9 +5,9 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\TimeSlot>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Day>
  */
-class TimeSlotFactory extends Factory
+class DayFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -17,8 +17,7 @@ class TimeSlotFactory extends Factory
     public function definition(): array
     {
         return [
-            'start_time' => $this->faker->time(),
-            'end_time' => $this->faker->time(),
+            'name' => $this->faker->dayOfWeek(),
         ];
     }
 }
