@@ -20,7 +20,7 @@ class TimetablePreferenceFactory extends Factory
         return [
             'user_id' => User::factory(),
             'preferences' => [
-                'courses' => $this->faker->words(3),
+                'subjects' => $this->faker->words(3),
                 'available_days' => $this->faker->words(2),
                 'available_times' => $this->faker->words(2),
                 'preferred_lecturers' => $this->faker->words(2),

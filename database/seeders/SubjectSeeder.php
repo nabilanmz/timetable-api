@@ -33,7 +33,7 @@ class SubjectSeeder extends Seeder
             [
                 'name' => 'Linear Algebra',
                 'code' => 'MATH201',
-                'description' => 'A course on vector spaces, linear transformations, and matrices.'
+                'description' => 'A subject on vector spaces, linear transformations, and matrices.'
             ],
             [
                 'name' => 'Data Structures and Algorithms',

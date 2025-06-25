@@ -26,7 +26,7 @@ class GeneratedTimetableController extends Controller
 {
     /**
      * @OA\Post(
-     *      path="/api/generated-timetables",
+     *      path="/api/generate-timetable",
      *      operationId="generateTimetable",
      *      tags={"Generated Timetables"},
      *      summary="Generate a new timetable based on user preferences",
@@ -47,7 +47,7 @@ class GeneratedTimetableController extends Controller
      *      )
      * )
      */
-    public function store(Request $request)
+    public function generate(Request $request)
     {
         $user = $request->user();
         $preferences = TimetablePreference::where('user_id', $user->id)->firstOrFail();
@@ -58,14 +58,14 @@ class GeneratedTimetableController extends Controller
         $classesData = $classes->map(function ($entry) {
             return [
                 'code' => $entry->subject->code,
-                'course' => $entry->subject->name,
+                'subject' => $entry->subject->name,
                 'activity' => $entry->activity,
                 'section' => $entry->section,
                 'days' => $entry->day->name,
                 'start_time' => $entry->timeSlot->start_time,
                 'end_time' => $entry->timeSlot->end_time,
                 'venue' => $entry->venue,
-                'tied_to' => $entry->tied_to ? explode(',', $entry->tied_to) : [],
+                'tied_to' => $entry->tied_to ?? [],
                 'lecturer' => $entry->lecturer->name,
             ];
         });
@@ -128,7 +128,7 @@ class GeneratedTimetableController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/api/generated-timetables",
+     *      path="/api/my-timetable",
      *      operationId="getActiveGeneratedTimetable",
      *      tags={"Generated Timetables"},
      *      summary="Get the active generated timetable for the authenticated user",

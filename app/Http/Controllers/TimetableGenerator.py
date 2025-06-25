@@ -23,7 +23,7 @@ MAX_GAP = timedelta(hours=2)  # More than 2 hours gap is not preferred
 @dataclass
 class Class:
     code: str
-    course: str
+    subject: str
     activity: str  # "Lecture" or "Tutorial"
     section: str
     days: str
@@ -76,7 +76,7 @@ def load_classes_from_csv(filename: str) -> List[Class]:
                 classes.append(
                     Class(
                         code=row["Code"],
-                        course=row["Course"],
+                        subject=row["subject"],
                         activity=row["Activity"],
                         section=row["Section"],
                         days=row["Days"],
@@ -105,7 +105,7 @@ def load_classes_from_json(classes_data: List[Dict]) -> List[Class]:
             classes.append(
                 Class(
                     code=row["code"],
-                    course=row["course"],
+                    subject=row["subject"],
                     activity=row["activity"],
                     section=row["section"],
                     days=row["days"],
@@ -124,10 +124,10 @@ def load_classes_from_json(classes_data: List[Dict]) -> List[Class]:
 
 
 def group_classes_by_section(classes: List[Class]) -> Dict[str, Dict[str, List[Class]]]:
-    """Group classes by course and section"""
+    """Group classes by subject and section"""
     section_groups: Dict[str, Dict[str, List[Class]]] = defaultdict(lambda: defaultdict(list))
     for cls in classes:
-        section_groups[cls.course][f"{cls.activity}_{cls.section}"].append(cls)
+        section_groups[cls.subject][f"{cls.activity}_{cls.section}"].append(cls)
     return section_groups
 
 
@@ -147,7 +147,7 @@ class Timetable:
     def can_add_section(self, section_classes: List[Class]) -> bool:
         """Check if we can add all classes in this section without clashes."""
         # This function now only needs to check for time clashes, as the GA
-        # structure handles the one-lecture-per-course logic.
+        # structure handles the one-lecture-per-subject logic.
         for cls in section_classes:
             # Check time conflicts
             for existing in self.schedule[cls.days]:
@@ -226,8 +226,8 @@ class Timetable:
 
         return total_gap_score / (len(day_classes) - 1) if len(day_classes) > 1 else 1.0
 
-    def get_scheduled_courses(self) -> Set[str]:
-        return {sc.class_obj.course for sc in self.scheduled_classes}
+    def get_scheduled_subjects(self) -> Set[str]:
+        return {sc.class_obj.subject for sc in self.scheduled_classes}
 
 
 ### REWRITTEN CLASS ###
@@ -249,34 +249,34 @@ class TimetableGenerator:
 
         if self.enforce_ties:
             # print("\nSetting up GA with ENFORCED lecture-tutorial ties.")
-            # Gene map for tied sections: (course, [ (lecture_section, [tied_tutorial_1, ...]), ... ])
-            for course in self.user_preferences["courses"]:
-                if course not in self.section_groups:
+            # Gene map for tied sections: (subject, [ (lecture_section, [tied_tutorial_1, ...]), ... ])
+            for subject in self.user_preferences["subjects"]:
+                if subject not in self.section_groups:
                     continue
 
-                course_lectures = sorted(
+                subject_lectures = sorted(
                     [
                         sc
-                        for sk, sc in self.section_groups[course].items()
+                        for sk, sc in self.section_groups[subject].items()
                         if sk.startswith("Lecture")
                     ],
                     key=lambda s: s[0].section,
                 )
 
-                if not course_lectures:
+                if not subject_lectures:
                     continue
 
                 lecture_tutorial_pairs = []
                 max_tied_tutorials = 0
-                for lect_section_group in course_lectures:
+                for lect_section_group in subject_lectures:
                     # Find all tutorial sections tied to this lecture
                     tied_tutorial_names = lect_section_group[0].tied_to
 
                     tied_tutorials = []
                     for tut_name in tied_tutorial_names:
                         tut_key = f"Tutorial_{tut_name}"
-                        if tut_key in self.section_groups[course]:
-                            tied_tutorials.append(self.section_groups[course][tut_key])
+                        if tut_key in self.section_groups[subject]:
+                            tied_tutorials.append(self.section_groups[subject][tut_key])
 
                     if tied_tutorials:
                         lecture_tutorial_pairs.append(
@@ -288,8 +288,8 @@ class TimetableGenerator:
                 if lecture_tutorial_pairs:
                     self.gene_map.append(
                         {
-                            "type": "tied_course",
-                            "course": course,
+                            "type": "tied_subject",
+                            "subject": subject,
                             "pairs": lecture_tutorial_pairs,
                         }
                     )
@@ -301,18 +301,18 @@ class TimetableGenerator:
 
         else:  # Ties are NOT enforced (lecturer view)
             # print("\nSetting up GA with INDEPENDENT lecture and tutorial choices.")
-            for course in self.user_preferences["courses"]:
-                if course not in self.section_groups:
+            for subject in self.user_preferences["subjects"]:
+                if subject not in self.section_groups:
                     continue
 
                 lectures = [
                     sc
-                    for sk, sc in self.section_groups[course].items()
+                    for sk, sc in self.section_groups[subject].items()
                     if sk.startswith("Lecture")
                 ]
                 tutorials = [
                     sc
-                    for sk, sc in self.section_groups[course].items()
+                    for sk, sc in self.section_groups[subject].items()
                     if sk.startswith("Tutorial")
                 ]
 
@@ -321,7 +321,7 @@ class TimetableGenerator:
                         {
                             "type": "independent_activity",
                             "activity": "Lecture",
-                            "course": course,
+                            "subject": subject,
                             "sections": lectures,
                         }
                     )
@@ -331,7 +331,7 @@ class TimetableGenerator:
                         {
                             "type": "independent_activity",
                             "activity": "Tutorial",
-                            "course": course,
+                            "subject": subject,
                             "sections": tutorials,
                         }
                     )
@@ -339,7 +339,7 @@ class TimetableGenerator:
 
         if not self.gene_map:
             raise ValueError(
-                "No valid sections found for the selected courses with the chosen constraints."
+                "No valid sections found for the selected subjects with the chosen constraints."
             )
 
         self.toolbox.register(
@@ -493,7 +493,7 @@ class TimetableGenerator:
     def run(self, generations=150, pop_size=500) -> Optional[Timetable]:
         if not self.gene_map:
             # print(
-            #     "\nError: No sections available for the selected courses. Cannot generate a timetable."
+            #     "\nError: No sections available for the selected subjects. Cannot generate a timetable."
             # )
             return None
 
@@ -519,9 +519,9 @@ class TimetableGenerator:
             # print("\n" + "=" * 50)
             # print("COULD NOT FIND A VALID, CLASH-FREE TIMETABLE")
             # print(
-            #     "This likely means there are unavoidable time clashes between the required sections of your chosen courses, even with all possible combinations."
+            #     "This likely means there are unavoidable time clashes between the required sections of your chosen subjects, even with all possible combinations."
             # )
-            # print("Please try a different combination of courses.")
+            # print("Please try a different combination of subjects.")
             # print("=" * 50)
             return None
 
@@ -568,7 +568,7 @@ def format_timetable_as_json(timetable: Optional[Timetable]) -> Dict:
         for sc in scheduled_classes:
             schedule_dict[day].append({
                 "code": sc.class_obj.code,
-                "course": sc.class_obj.course,
+                "subject": sc.class_obj.subject,
                 "activity": sc.class_obj.activity,
                 "section": sc.class_obj.section,
                 "start_time": sc.start_time.strftime('%H:%M:%S'),

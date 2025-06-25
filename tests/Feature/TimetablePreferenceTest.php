@@ -19,7 +19,7 @@ class TimetablePreferenceTest extends TestCase
 
         $preferences = [
             'preferences' => [
-                'courses' => ['Math', 'Physics'],
+                'subjects' => ['Math', 'Physics'],
                 'available_days' => ['Monday', 'Tuesday'],
                 'available_times' => ['9:00-10:00', '11:00-12:00'],
                 'preferred_lecturers' => ['Dr. Smith', 'Dr. Jones'],

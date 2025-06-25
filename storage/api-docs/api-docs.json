@@ -203,38 +203,7 @@
                 }
             }
         },
-        "/api/generated-timetables": {
-            "get": {
-                "tags": [
-                    "Generated Timetables"
-                ],
-                "summary": "Get the active generated timetable for the authenticated user",
-                "description": "Returns the active generated timetable",
-                "operationId": "getActiveGeneratedTimetable",
-                "responses": {
-                    "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GeneratedTimetable"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated"
-                    },
-                    "404": {
-                        "description": "No active timetable found"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            },
+        "/api/generate-timetable": {
             "post": {
                 "tags": [
                     "Generated Timetables"
@@ -258,6 +227,39 @@
                     },
                     "500": {
                         "description": "Failed to generate timetable"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/my-timetable": {
+            "get": {
+                "tags": [
+                    "Generated Timetables"
+                ],
+                "summary": "Get the active generated timetable for the authenticated user",
+                "description": "Returns the active generated timetable",
+                "operationId": "getActiveGeneratedTimetable",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GeneratedTimetable"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "No active timetable found"
                     }
                 },
                 "security": [
@@ -438,6 +440,210 @@
                         "description": "Resource Not Found"
                     }
                 }
+            }
+        },
+        "/api/sections": {
+            "get": {
+                "tags": [
+                    "Sections"
+                ],
+                "summary": "List all sections",
+                "description": "Get a list of all available course sections, with optional search functionality.",
+                "operationId": "ec6bc0921c4783e5344d7c888da6f7e8",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search term to filter sections by subject name, code, lecturer, or section number.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A list of sections.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Section"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Sections"
+                ],
+                "summary": "Create a new section",
+                "description": "Create a new course section. Requires admin privileges.",
+                "operationId": "19722ad20ff1546bf005fc809c6e5d75",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Section"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Section created successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Section"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/sections/{section}": {
+            "get": {
+                "tags": [
+                    "Sections"
+                ],
+                "summary": "Get a single section",
+                "description": "Retrieve detailed information for a specific section.",
+                "operationId": "991aac5e14678d649d7635922353a14c",
+                "parameters": [
+                    {
+                        "name": "section",
+                        "in": "path",
+                        "description": "The UUID of the section.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The section details.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Section"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Section not found."
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Sections"
+                ],
+                "summary": "Update a section",
+                "description": "Update an existing course section. Requires admin privileges.",
+                "operationId": "fff9a7dc032e0977a3de2c71cff23cd2",
+                "parameters": [
+                    {
+                        "name": "section",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Section"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Section updated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Section"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Section not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Sections"
+                ],
+                "summary": "Delete a section",
+                "description": "Delete a course section. Requires admin privileges.",
+                "operationId": "896076f2917a50f58a3a506561a1dde8",
+                "parameters": [
+                    {
+                        "name": "section",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Section deleted successfully"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Section not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/settings": {
@@ -1362,7 +1568,7 @@
                     },
                     "description": {
                         "type": "string",
-                        "example": "An introductory course on programming fundamentals."
+                        "example": "An introductory subject on programming fundamentals."
                     },
                     "created_at": {
                         "type": "string",
@@ -1522,6 +1728,81 @@
                 },
                 "type": "object"
             },
+            "Section": {
+                "title": "Section",
+                "description": "A course section.",
+                "properties": {
+                    "id": {
+                        "description": "Primary key",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "subject_id": {
+                        "description": "Foreign key for the subject",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "section_number": {
+                        "description": "The section number",
+                        "type": "integer"
+                    },
+                    "lecturer_id": {
+                        "description": "Foreign key for the lecturer (user)",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "start_time": {
+                        "description": "Class start time",
+                        "type": "string",
+                        "format": "time"
+                    },
+                    "end_time": {
+                        "description": "Class end time",
+                        "type": "string",
+                        "format": "time"
+                    },
+                    "day_of_week": {
+                        "description": "Day of the week for the class",
+                        "type": "string"
+                    },
+                    "venue": {
+                        "description": "Location of the class",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "capacity": {
+                        "description": "Maximum number of students",
+                        "type": "integer"
+                    },
+                    "enrolled_students": {
+                        "description": "Number of students currently enrolled",
+                        "type": "integer"
+                    },
+                    "status": {
+                        "description": "Availability status",
+                        "type": "string",
+                        "enum": [
+                            "Available",
+                            "Full"
+                        ]
+                    },
+                    "subject": {
+                        "$ref": "#/components/schemas/Subject"
+                    },
+                    "lecturer": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
             "TimetableEntry": {
                 "title": "Timetable Entry",
                 "properties": {
@@ -1661,6 +1942,10 @@
         {
             "name": "Lecturers",
             "description": "Lecturers"
+        },
+        {
+            "name": "Sections",
+            "description": "Sections"
         },
         {
             "name": "Settings",

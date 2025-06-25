@@ -32,6 +32,10 @@ class TimetableEntry extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'tied_to' => 'array',
+    ];
+
     protected $fillable = [
         'timetable_id',
         'subject_id',

@@ -12,24 +12,28 @@ use App\Http\Controllers\TimeSlotController;
 use App\Http\Controllers\GeneratedTimetableController;
 use App\Http\Controllers\TimetablePreferenceController;
 use App\Http\Controllers\TimetableChangeRequestController;
+use App\Http\Controllers\SectionController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::get('/user', [AuthController::class, 'user']);
+Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
+    return $request->user();
+});
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::apiResource('subjects', SubjectController::class);
     Route::apiResource('lecturers', LecturerController::class);
     Route::apiResource('timetables', TimetableController::class);
     Route::apiResource('timeslots', TimeSlotController::class);
     Route::put('settings', [SettingController::class, 'update']);
     Route::apiResource('timetable-preferences', TimetablePreferenceController::class);
 
-    Route::post('generate-timetable', [GeneratedTimetableController::class, 'store']);
+    Route::post('generate-timetable', [GeneratedTimetableController::class, 'generate']);
     Route::get('my-timetable', [GeneratedTimetableController::class, 'show']);
 
     Route::apiResource('timetable-change-requests', TimetableChangeRequestController::class);
+    Route::apiResource('subjects', SubjectController::class);
+    Route::apiResource('sections', SectionController::class);
 });
 
 Route::get('/days', [DayController::class, 'index']);

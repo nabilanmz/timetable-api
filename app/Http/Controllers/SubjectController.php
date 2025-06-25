@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
  *     @OA\Property(property="id", type="integer", readOnly="true", example="1"),
  *     @OA\Property(property="name", type="string", example="Introduction to Programming"),
  *     @OA\Property(property="code", type="string", example="CS101"),
- *     @OA\Property(property="description", type="string", example="An introductory course on programming fundamentals."),
+ *     @OA\Property(property="description", type="string", example="An introductory subject on programming fundamentals."),
  *     @OA\Property(property="created_at", type="string", format="date-time", readOnly="true"),
  *     @OA\Property(property="updated_at", type="string", format="date-time", readOnly="true")
  * )

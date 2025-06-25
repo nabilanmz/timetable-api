@@ -1,4 +1,4 @@
-Code,Course,Activity,Section,Days,Start Time,End Time,Venue,Tied To,Lecturer
+Code,subject,Activity,Section,Days,Start Time,End Time,Venue,Tied To,Lecturer
 LMPU3192,Falsafah dan Isu Semasa,Lecture,FCI1,Thursday,10:00 AM,12:00 PM,CNMX1001,,Hazamza'Em Husin
 LDCW6123,Fundamentals of Digital Competence for Programmers,Lecture,FCI1,Monday,3:00 PM,6:00 PM,CQCR2002,FCIA,Siti Fazariah Hashim
 LDCW6123,Fundamentals of Digital Competence for Programmers,Tutorial,FCIA,Monday,5:00 PM,6:00 PM,CQCR2002,FCI1,Siti Fazariah Hashim

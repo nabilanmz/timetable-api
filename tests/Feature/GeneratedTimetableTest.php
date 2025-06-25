@@ -32,7 +32,7 @@ class GeneratedTimetableTest extends TestCase
         TimetablePreference::factory()->create([
             'user_id' => $user->id,
             'preferences' => [
-                'courses' => [$subject1->name], // Use real course name
+                'subjects' => [$subject1->name], // Use real subject name
                 'schedule_style' => 'compact',
                 'preferred_days' => ['Monday', 'Wednesday'],
                 'preferred_start' => '09:00:00',
@@ -59,7 +59,7 @@ class GeneratedTimetableTest extends TestCase
             'activity' => 'Lecture',
             'section' => '1',
             'venue' => 'Hall A',
-            'tied_to' => 'T1', // This lecture is tied to tutorial section T1
+            'tied_to' => ['T1'], // This lecture is tied to tutorial section T1
         ]);
 
         TimetableEntry::factory()->create([
