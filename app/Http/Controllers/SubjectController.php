@@ -5,10 +5,38 @@ namespace App\Http\Controllers;
 use App\Models\Subject;
 use Illuminate\Http\Request;
 
+/**
+ * @OA\Schema(
+ *     schema="Subject",
+ *     type="object",
+ *     title="Subject",
+ *     required={"name", "code"},
+ *     @OA\Property(property="id", type="integer", readOnly="true", example="1"),
+ *     @OA\Property(property="name", type="string", example="Introduction to Programming"),
+ *     @OA\Property(property="code", type="string", example="CS101"),
+ *     @OA\Property(property="description", type="string", example="An introductory course on programming fundamentals."),
+ *     @OA\Property(property="created_at", type="string", format="date-time", readOnly="true"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", readOnly="true")
+ * )
+ */
 class SubjectController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * @OA\Get(
+     *      path="/api/subjects",
+     *      operationId="getSubjectsList",
+     *      tags={"Subjects"},
+     *      summary="Get list of subjects",
+     *      description="Returns list of subjects",
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              type="array",
+     *              @OA\Items(ref="#/components/schemas/Subject")
+     *          )
+     *       )
+     * )
      */
     public function index()
     {
@@ -16,7 +44,26 @@ class SubjectController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @OA\Post(
+     *      path="/api/subjects",
+     *      operationId="storeSubject",
+     *      tags={"Subjects"},
+     *      summary="Store new subject",
+     *      description="Returns subject data",
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(ref="#/components/schemas/Subject")
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Successful operation",
+     *          @OA\JsonContent(ref="#/components/schemas/Subject")
+     *       ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Bad Request"
+     *      )
+     * )
      */
     public function store(Request $request)
     {
@@ -32,7 +79,31 @@ class SubjectController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * @OA\Get(
+     *      path="/api/subjects/{id}",
+     *      operationId="getSubjectById",
+     *      tags={"Subjects"},
+     *      summary="Get subject information",
+     *      description="Returns subject data",
+     *      @OA\Parameter(
+     *          name="id",
+     *          description="Subject id",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(ref="#/components/schemas/Subject")
+     *       ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Resource Not Found"
+     *      )
+     * )
      */
     public function show(Subject $subject)
     {
@@ -40,7 +111,39 @@ class SubjectController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * @OA\Put(
+     *      path="/api/subjects/{id}",
+     *      operationId="updateSubject",
+     *      tags={"Subjects"},
+     *      summary="Update existing subject",
+     *      description="Returns updated subject data",
+     *      @OA\Parameter(
+     *          name="id",
+     *          description="Subject id",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(ref="#/components/schemas/Subject")
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(ref="#/components/schemas/Subject")
+     *       ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Bad Request"
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Resource Not Found"
+     *      )
+     * )
      */
     public function update(Request $request, Subject $subject)
     {
@@ -56,7 +159,31 @@ class SubjectController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @OA\Delete(
+     *      path="/api/subjects/{id}",
+     *      operationId="deleteSubject",
+     *      tags={"Subjects"},
+     *      summary="Delete existing subject",
+     *      description="Deletes a record and returns no content",
+     *      @OA\Parameter(
+     *          name="id",
+     *          description="Subject id",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=204,
+     *          description="Successful operation",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Resource Not Found"
+     *      )
+     * )
      */
     public function destroy(Subject $subject)
     {

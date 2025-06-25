@@ -9,8 +9,44 @@ use Illuminate\Http\Request;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
+/**
+ * @OA\Schema(
+ *     schema="GeneratedTimetable",
+ *     type="object",
+ *     title="Generated Timetable",
+ *     @OA\Property(property="id", type="integer", readOnly="true"),
+ *     @OA\Property(property="user_id", type="integer", readOnly="true"),
+ *     @OA\Property(property="timetable", type="object"),
+ *     @OA\Property(property="active", type="boolean"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", readOnly="true"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", readOnly="true")
+ * )
+ */
 class GeneratedTimetableController extends Controller
 {
+    /**
+     * @OA\Post(
+     *      path="/api/generated-timetables",
+     *      operationId="generateTimetable",
+     *      tags={"Generated Timetables"},
+     *      summary="Generate a new timetable based on user preferences",
+     *      description="Returns a newly generated timetable",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Response(
+     *          response=201,
+     *          description="Successful operation",
+     *          @OA\JsonContent(ref="#/components/schemas/GeneratedTimetable")
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated"
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Failed to generate timetable"
+     *      )
+     * )
+     */
     public function store(Request $request)
     {
         $user = $request->user();
@@ -90,6 +126,29 @@ class GeneratedTimetableController extends Controller
         return response()->json($generatedTimetable, 201);
     }
 
+    /**
+     * @OA\Get(
+     *      path="/api/generated-timetables",
+     *      operationId="getActiveGeneratedTimetable",
+     *      tags={"Generated Timetables"},
+     *      summary="Get the active generated timetable for the authenticated user",
+     *      description="Returns the active generated timetable",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(ref="#/components/schemas/GeneratedTimetable")
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated"
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="No active timetable found"
+     *      )
+     * )
+     */
     public function show(Request $request)
     {
         $user = $request->user();
