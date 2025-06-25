@@ -43,6 +43,9 @@ class TimetableTest extends TestCase
                     'lecturer_id' => $lecturer->id,
                     'day_id' => $day->id,
                     'time_slot_id' => $timeSlot->id,
+                    'activity' => 'Lecture',
+                    'section' => '1',
+                    'venue' => 'Hall A',
                 ]
             ]
         ];
@@ -105,6 +108,9 @@ class TimetableTest extends TestCase
                     'lecturer_id' => $lecturer->id,
                     'day_id' => $day->id,
                     'time_slot_id' => $timeSlot->id,
+                    'activity' => 'Tutorial',
+                    'section' => '2',
+                    'venue' => 'Room B',
                 ]
             ]
         ];

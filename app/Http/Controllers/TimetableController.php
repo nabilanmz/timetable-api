@@ -24,6 +24,9 @@ class TimetableController extends Controller
             'entries.*.lecturer_id' => 'required|exists:lecturers,id',
             'entries.*.day_id' => 'required|exists:days,id',
             'entries.*.time_slot_id' => 'required|exists:time_slots,id',
+            'entries.*.activity' => 'required|string',
+            'entries.*.section' => 'required|string',
+            'entries.*.venue' => 'required|string',
         ]);
 
         $timetable = DB::transaction(function () use ($validatedData, $request) {
@@ -66,6 +69,9 @@ class TimetableController extends Controller
             'entries.*.lecturer_id' => 'required|exists:lecturers,id',
             'entries.*.day_id' => 'required|exists:days,id',
             'entries.*.time_slot_id' => 'required|exists:time_slots,id',
+            'entries.*.activity' => 'required|string',
+            'entries.*.section' => 'required|string',
+            'entries.*.venue' => 'required|string',
         ]);
 
         DB::transaction(function () use ($timetable, $validatedData) {

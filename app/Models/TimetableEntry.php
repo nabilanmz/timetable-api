@@ -15,6 +15,10 @@ class TimetableEntry extends Model
         'lecturer_id',
         'day_id',
         'time_slot_id',
+        'activity',
+        'section',
+        'venue',
+        'tied_to',
     ];
 
     public function subject()

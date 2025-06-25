@@ -27,6 +27,10 @@ class TimetableEntryFactory extends Factory
             'lecturer_id' => Lecturer::factory(),
             'day_id' => Day::factory(),
             'time_slot_id' => TimeSlot::factory(),
+            'activity' => $this->faker->randomElement(['Lecture', 'Tutorial']),
+            'section' => $this->faker->numberBetween(1, 5),
+            'venue' => $this->faker->randomElement(['Hall A', 'Room B', 'Lab C']),
+            'tied_to' => null,
         ];
     }
 }
