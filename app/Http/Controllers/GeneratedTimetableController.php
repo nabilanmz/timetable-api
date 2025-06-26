@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\GeneratedTimetable;
-use App\Models\TimetableEntry;
+use App\Models\Section; // Add this line
 use App\Models\TimetablePreference;
 use Illuminate\Http\Request;
 use Symfony\Component\Process\Process;
@@ -50,76 +50,86 @@ class GeneratedTimetableController extends Controller
     public function generate(Request $request)
     {
         $user = $request->user();
-        $preferences = TimetablePreference::where('user_id', $user->id)->firstOrFail();
+        $preferences = $request->input('preferences');
 
-        // 1. Collect class data from TimetableEntry
-        $classes = TimetableEntry::with(['subject', 'lecturer', 'day', 'timeSlot'])->get();
+        if (!$preferences) {
+            $preferenceModel = TimetablePreference::where('user_id', $user->id)->first();
+            if ($preferenceModel) {
+                $preferences = $preferenceModel->preferences;
+                if (is_string($preferences)) {
+                    $preferences = json_decode($preferences, true);
+                }
+            } else {
+                return response()->json(['message' => 'No preferences found for the user.'], 404);
+            }
+        }
 
-        $classesData = $classes->map(function ($entry) {
+        // 1. Collect class data from Section model
+        $classes = Section::with(['subject', 'lecturer'])->get();
+
+        $classesData = $classes->map(function ($section) {
+            $activity = 'Lecture';
+            if (str_starts_with($section->section_number, 'T')) {
+                $activity = 'Tutorial';
+            }
             return [
-                'code' => $entry->subject->code,
-                'subject' => $entry->subject->name,
-                'activity' => $entry->activity,
-                'section' => $entry->section,
-                'days' => $entry->day->name,
-                'start_time' => $entry->timeSlot->start_time,
-                'end_time' => $entry->timeSlot->end_time,
-                'venue' => $entry->venue,
-                'tied_to' => $entry->tied_to ?? [],
-                'lecturer' => $entry->lecturer->name,
+                'id' => $section->id,
+                'code' => $section->subject->code,
+                'subject' => $section->subject->name,
+                'activity' => $activity,
+                'section' => $section->section_number,
+                'days' => $section->day_of_week,
+                'start_time' => $section->start_time,
+                'end_time' => $section->end_time,
+                'venue' => $section->venue,
+                'tied_to' => [],
+                'lecturer' => $section->lecturer ? $section->lecturer->name : 'N/A',
             ];
         });
 
-        $prefs = $preferences->preferences;
-        if (is_string($prefs)) {
-            $prefs = json_decode($prefs, true);
-        }
-
         // 2. Prepare data for Python script
         $inputData = [
-            'classes' => $classesData,
-            'preferences' => $prefs,
+            'classes' => $classesData->toArray(),
+            'preferences' => $preferences,
         ];
 
         // 3. Execute Python script
-        $pythonExecutable = env('PYTHON_EXECUTABLE', 'python3');
+        $pythonExecutable = env('PYTHON_EXECUTABLE', base_path('.venv/bin/python'));
+        $scriptPath = app_path('Http/Controllers/TimetableGenerator.py');
 
-        $process = new Process([
-            $pythonExecutable,
-            base_path('app/Http/Controllers/TimetableGenerator.py'),
-        ]);
+        $process = new Process([$pythonExecutable, $scriptPath]);
         $process->setInput(json_encode($inputData));
         $process->run();
 
         if (!$process->isSuccessful()) {
+            $errorOutput = $process->getOutput(); // Python script writes JSON error to stdout
+            if (!empty($errorOutput)) {
+                $output = json_decode($errorOutput, true);
+                if (json_last_error() === JSON_ERROR_NONE && isset($output['message'])) {
+                    return response()->json(['message' => $output['message']], 422);
+                }
+            }
             throw new ProcessFailedException($process);
         }
 
         $rawOutput = $process->getOutput();
         $output = json_decode($rawOutput, true);
 
-        if ($output === null && json_last_error() !== JSON_ERROR_NONE) {
-            // JSON decoding failed. Throw an exception with detailed info.
-            throw new \Exception(
-                'Failed to decode JSON from Python script. Error: ' . json_last_error_msg() . 
-                ". Raw output: " . $rawOutput
-            );
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return response()->json(['message' => 'Failed to decode timetable from generator.', 'raw_output' => $rawOutput], 500);
         }
 
         if (isset($output['status']) && $output['status'] === 'error') {
-            return response()->json(['message' => 'Failed to generate timetable: ' . ($output['message'] ?? 'Unknown error')], 500);
+            return response()->json(['message' => $output['message']], 422);
         }
 
-        if (!isset($output['timetable'])) {
-            throw new \Exception('Python script returned success status but no timetable. Raw output: ' . $rawOutput);
-        }
-
-        // 4. Save the generated timetable
+        // Deactivate any existing active timetables for the user
         GeneratedTimetable::where('user_id', $user->id)->update(['active' => false]);
 
+        // 4. Save the new timetable
         $generatedTimetable = GeneratedTimetable::create([
             'user_id' => $user->id,
-            'timetable' => $output['timetable'],
+            'timetable' => $output,
             'active' => true,
         ]);
 

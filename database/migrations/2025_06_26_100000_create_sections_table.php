@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('sections', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignId('subject_id')->constrained()->onDelete('cascade');
-            $table->integer('section_number');
+            $table->string('section_number');
             $table->foreignId('lecturer_id')->nullable()->constrained('users')->onDelete('set null');
             $table->time('start_time');
             $table->time('end_time');

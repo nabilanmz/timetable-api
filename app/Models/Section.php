@@ -33,6 +33,8 @@ class Section extends Model
 {
     use HasFactory, HasUuids;
 
+    protected $table = 'sections';
+
     protected $fillable = [
         'subject_id',
         'section_number',
@@ -57,5 +59,10 @@ class Section extends Model
     public function enrollments()
     {
         return $this->hasMany(Enrollment::class);
+    }
+
+    public function timetables()
+    {
+        return $this->belongsToMany(Timetable::class);
     }
 }

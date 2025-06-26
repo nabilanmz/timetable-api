@@ -13,15 +13,14 @@ use App\Http\Controllers\GeneratedTimetableController;
 use App\Http\Controllers\TimetablePreferenceController;
 use App\Http\Controllers\TimetableChangeRequestController;
 use App\Http\Controllers\SectionController;
+use App\Http\Controllers\TimetableSectionController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
-});
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/user', [AuthController::class, 'user']);
     Route::apiResource('lecturers', LecturerController::class);
     Route::apiResource('timetables', TimetableController::class);
     Route::apiResource('timeslots', TimeSlotController::class);
@@ -34,6 +33,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('timetable-change-requests', TimetableChangeRequestController::class);
     Route::apiResource('subjects', SubjectController::class);
     Route::apiResource('sections', SectionController::class);
+
+    Route::post('timetables/{timetable}/sections', [TimetableSectionController::class, 'store'])->name('timetables.sections.store');
+    Route::delete('timetables/{timetable}/sections/{section}', [TimetableSectionController::class, 'destroy'])->name('timetables.sections.destroy');
 });
 
 Route::get('/days', [DayController::class, 'index']);

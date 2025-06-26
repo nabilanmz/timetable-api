@@ -20,4 +20,9 @@ class Timetable extends Model
     {
         return $this->hasMany(TimetableEntry::class);
     }
+
+    public function sections()
+    {
+        return $this->belongsToMany(Section::class);
+    }
 }

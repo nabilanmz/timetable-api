@@ -38,7 +38,7 @@ class SectionTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonFragment([
-                'section_number' => 1,
+                'section_number' => '1',
                 'capacity' => 20,
                 'enrolled_students' => 15,
                 'status' => 'Available',

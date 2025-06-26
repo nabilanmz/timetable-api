@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             DaySeeder::class,
             TimeSlotSeeder::class,
             TimetableSeeder::class,
+            SectionSeeder::class,
         ]);
     }
 }

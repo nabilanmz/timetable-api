@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\TimetablePreference;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -29,9 +30,10 @@ class TimetablePreferenceTest extends TestCase
         $response = $this->postJson('/api/timetable-preferences', $preferences);
 
         $response->assertStatus(201);
-        $this->assertDatabaseHas('timetable_preferences', [
-            'user_id' => $user->id,
-            'preferences' => json_encode($preferences['preferences']),
-        ]);
+
+        $dbPreference = TimetablePreference::where('user_id', $user->id)->first();
+
+        $this->assertNotNull($dbPreference);
+        $this->assertEquals($preferences['preferences'], $dbPreference->preferences);
     }
 }

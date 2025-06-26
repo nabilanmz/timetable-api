@@ -2,17 +2,12 @@
 
 namespace Tests\Feature;
 
-use App\Models\Day;
 use App\Models\GeneratedTimetable;
-use App\Models\Lecturer;
+use App\Models\Section;
 use App\Models\Subject;
-use App\Models\TimeSlot;
-use App\Models\Timetable;
-use App\Models\TimetableEntry;
 use App\Models\TimetablePreference;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Http;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -28,6 +23,7 @@ class GeneratedTimetableTest extends TestCase
 
         // Create subjects that will be used in preferences and entries
         $subject1 = Subject::factory()->create(['name' => 'Introduction to Programming', 'code' => 'CS101']);
+        $lecturer = User::factory()->create();
 
         TimetablePreference::factory()->create([
             'user_id' => $user->id,
@@ -37,41 +33,30 @@ class GeneratedTimetableTest extends TestCase
                 'preferred_days' => ['Monday', 'Wednesday'],
                 'preferred_start' => '09:00:00',
                 'preferred_end' => '17:00:00',
-                'enforce_ties' => true,
+                'enforce_ties' => false, // Disable tie enforcement as it's not supported by the Section model
                 'preferred_lecturers' => [],
             ]
         ]);
 
-        // Create a timetable with entries for the user
-        $timetable = Timetable::factory()->create(['created_by' => $user->id]);
-        $lecturer = Lecturer::factory()->create();
-        $day = Day::factory()->create(['name' => 'Monday']);
-        $timeSlot1 = TimeSlot::factory()->create(['start_time' => '09:00:00', 'end_time' => '11:00:00']);
-        $timeSlot2 = TimeSlot::factory()->create(['start_time' => '11:00:00', 'end_time' => '12:00:00']);
-
-        // Entries for Subject 1
-        TimetableEntry::factory()->create([
-            'timetable_id' => $timetable->id,
+        // Create sections for the subject
+        Section::factory()->create([
             'subject_id' => $subject1->id,
             'lecturer_id' => $lecturer->id,
-            'day_id' => $day->id,
-            'time_slot_id' => $timeSlot1->id,
-            'activity' => 'Lecture',
-            'section' => '1',
+            'section_number' => '1',
+            'day_of_week' => 'Monday',
+            'start_time' => '09:00:00',
+            'end_time' => '11:00:00',
             'venue' => 'Hall A',
-            'tied_to' => ['T1'], // This lecture is tied to tutorial section T1
         ]);
 
-        TimetableEntry::factory()->create([
-            'timetable_id' => $timetable->id,
+        Section::factory()->create([
             'subject_id' => $subject1->id,
             'lecturer_id' => $lecturer->id,
-            'day_id' => $day->id,
-            'time_slot_id' => $timeSlot2->id,
-            'activity' => 'Tutorial',
-            'section' => 'T1', // This is tutorial section T1
+            'section_number' => 'T1',
+            'day_of_week' => 'Monday',
+            'start_time' => '11:00:00',
+            'end_time' => '12:00:00',
             'venue' => 'Room B',
-            'tied_to' => null,
         ]);
 
         $response = $this->postJson('/api/generate-timetable');

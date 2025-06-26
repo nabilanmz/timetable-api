@@ -1428,6 +1428,105 @@
                     }
                 ]
             }
+        },
+        "/api/timetables/{timetable}/sections": {
+            "post": {
+                "tags": [
+                    "Timetables"
+                ],
+                "summary": "Add a section to a timetable",
+                "operationId": "0813d26fc241b102d86c6bd929fe23bf",
+                "parameters": [
+                    {
+                        "name": "timetable",
+                        "in": "path",
+                        "description": "ID of the timetable",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "section_id"
+                                ],
+                                "properties": {
+                                    "section_id": {
+                                        "description": "ID of the section to add",
+                                        "type": "string",
+                                        "format": "uuid"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Section added successfully"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/timetables/{timetable}/sections/{section}": {
+            "delete": {
+                "tags": [
+                    "Timetables"
+                ],
+                "summary": "Remove a section from a timetable",
+                "operationId": "b1f39d324c0c7aaaef0f580432b2ee82",
+                "parameters": [
+                    {
+                        "name": "timetable",
+                        "in": "path",
+                        "description": "ID of the timetable",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "section",
+                        "in": "path",
+                        "description": "ID of the section to remove",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Section removed successfully"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -1928,6 +2027,10 @@
     },
     "tags": [
         {
+            "name": "Timetables",
+            "description": "Endpoints for managing timetables"
+        },
+        {
             "name": "Authentication",
             "description": "Authentication"
         },
@@ -1962,10 +2065,6 @@
         {
             "name": "Timetable Change Requests",
             "description": "Timetable Change Requests"
-        },
-        {
-            "name": "Timetables",
-            "description": "Timetables"
         },
         {
             "name": "Timetable Preferences",
