@@ -1429,6 +1429,29 @@
                 ]
             }
         },
+        "/api/timetable-preferences/options": {
+            "get": {
+                "tags": [
+                    "Timetable Preferences"
+                ],
+                "summary": "Get available options for timetable preferences",
+                "description": "Returns available subjects, days, time slots, and lecturers",
+                "operationId": "getTimetablePreferenceOptions",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/timetables/{timetable}/sections": {
             "post": {
                 "tags": [

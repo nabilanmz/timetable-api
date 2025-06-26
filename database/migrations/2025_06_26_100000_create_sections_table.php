@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignId('subject_id')->constrained()->onDelete('cascade');
             $table->string('section_number');
-            $table->foreignId('lecturer_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('lecturer_id')->nullable()->constrained('lecturers')->onDelete('set null');
             $table->time('start_time');
             $table->time('end_time');
             $table->string('day_of_week');

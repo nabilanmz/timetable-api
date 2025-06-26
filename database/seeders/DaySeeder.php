@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Day;
+use Illuminate\Support\Facades\Schema;
 
 class DaySeeder extends Seeder
 {
@@ -14,6 +15,9 @@ class DaySeeder extends Seeder
      */
     public function run()
     {
+        Schema::disableForeignKeyConstraints();
+        Day::truncate();
+        Schema::enableForeignKeyConstraints();
         $days = [
             ['name' => 'Monday'],
             ['name' => 'Tuesday'],

@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Section;
 use App\Models\Subject;
-use App\Models\User;
+use App\Models\Lecturer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class SectionFactory extends Factory
@@ -16,8 +16,8 @@ class SectionFactory extends Factory
         $startTime = $this->faker->time('H:i:s');
         return [
             'subject_id' => Subject::factory(),
-            'section_number' => $this->faker->unique()->numberBetween(1, 10),
-            'lecturer_id' => User::factory(),
+            'section_number' => $this->faker->numberBetween(1, 10),
+            'lecturer_id' => Lecturer::factory(),
             'start_time' => $startTime,
             'end_time' => \Carbon\Carbon::parse($startTime)->addHour()->format('H:i:s'),
             'day_of_week' => $this->faker->dayOfWeek,

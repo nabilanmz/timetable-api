@@ -5,7 +5,10 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Section;
 use App\Models\Subject;
-use App\Models\User;
+use App\Models\Lecturer;
+use App\Models\Day;
+use App\Models\TimeSlot;
+use Illuminate\Support\Facades\Schema;
 
 class SectionSeeder extends Seeder
 {
@@ -16,37 +19,43 @@ class SectionSeeder extends Seeder
      */
     public function run()
     {
-        $csvFile = fopen(base_path("database/seeders/classes.csv"), "r");
+        Schema::disableForeignKeyConstraints();
+        Section::truncate();
+        Schema::enableForeignKeyConstraints();
+        $subjects = Subject::all();
+        $lecturers = Lecturer::all();
+        $days = Day::all();
+        $timeSlots = TimeSlot::all();
 
-        $firstline = true;
-        while (($data = fgetcsv($csvFile, 2000, ",")) !== FALSE) {
-
-                // Use firstOrCreate with the unique key (`code`) as the first argument
-                $subject = Subject::firstOrCreate(
-                    ['code' => $data[1]],
-                    ['name' => $data[0]]
-                );
-
-                $lecturer = User::firstOrCreate(
-                    ['name' => $data[4]],
-                    [
-                        'email' => strtolower(str_replace(' ', '.', $data[4])) . '@example.com',
-                        'password' => bcrypt('password')
-                    ]
-                );
-
-                Section::create([
-                    'subject_id' => $subject->id,
-                    'section_number' => (int)$data[2],
-                    'lecturer_id' => $lecturer->id,
-                    'start_time' => date("H:i:s", strtotime($data[5])),
-                    'end_time' => date("H:i:s", strtotime($data[6])),
-                    'day_of_week' => $data[4],
-                    'venue' => $data[8],
-                    'capacity' => !empty($data[9]) && is_numeric($data[9]) ? (int)$data[9] : 50, // Default capacity
-                ]);
-            }
-            $firstline = false;
+        if ($lecturers->isEmpty() || $days->isEmpty() || $timeSlots->isEmpty()) {
+            // Handle cases where there are no lecturers, days, or time slots
+            // You might want to log a message or skip seeding sections
+            return;
         }
 
+        foreach ($subjects as $subject) {
+            $usedCombinations = [];
+            // Create 2-3 sections for each subject to ensure variety
+            for ($i = 0; $i < rand(2, 3); $i++) {
+                $lecturer = $lecturers->random();
+                $day = $days->random();
+                $timeSlot = $timeSlots->random();
+
+                // To avoid duplicate sections for the same subject
+                $combination = $lecturer->id . '-' . $day->id . '-' . $timeSlot->id;
+                if (in_array($combination, $usedCombinations)) {
+                    continue;
+                }
+                $usedCombinations[] = $combination;
+
+                Section::factory()->create([
+                    'subject_id' => $subject->id,
+                    'lecturer_id' => $lecturer->id,
+                    'day_of_week' => $day->name,
+                    'start_time' => $timeSlot->start_time,
+                    'end_time' => $timeSlot->end_time,
+                ]);
+            }
+        }
+    }
 }

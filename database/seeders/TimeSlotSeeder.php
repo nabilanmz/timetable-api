@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\TimeSlot;
+use Illuminate\Support\Facades\Schema;
 
 class TimeSlotSeeder extends Seeder
 {
@@ -14,6 +15,9 @@ class TimeSlotSeeder extends Seeder
      */
     public function run()
     {
+        Schema::disableForeignKeyConstraints();
+        TimeSlot::truncate();
+        Schema::enableForeignKeyConstraints();
         $timeSlots = [
             ['start_time' => '08:00:00', 'end_time' => '09:00:00'],
             ['start_time' => '09:00:00', 'end_time' => '10:00:00'],
