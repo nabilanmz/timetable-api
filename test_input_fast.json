@@ -1,0 +1,14 @@
+{
+    "subjects": [
+        "Falsafah dan Isu Semasa",
+        "Fundamentals of Digital Competence for Programmers",
+        "Bahasa Kebangsaan A"
+    ],
+    "preferences": {
+        "style": "compact",
+        "enforce_ties": false,
+        "lecturers": [],
+        "days": [],
+        "times": []
+    }
+}

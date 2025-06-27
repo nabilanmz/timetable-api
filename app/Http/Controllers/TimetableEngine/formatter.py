@@ -7,7 +7,7 @@ primarily JSON for API responses.
 
 from typing import Dict, Optional
 from collections import defaultdict
-from .models import Timetable
+from models import Timetable
 
 
 def format_timetable_as_json(timetable: Optional[Timetable]) -> Dict:

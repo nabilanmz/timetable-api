@@ -10,7 +10,7 @@ import csv
 import sys
 from typing import List, Dict
 from datetime import datetime
-from .models import Class
+from models import Class
 
 
 def load_classes_from_csv(filename: str) -> List[Class]:

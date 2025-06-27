@@ -10,7 +10,7 @@ This module contains the core data structures used throughout the system:
 from dataclasses import dataclass
 from typing import List, Dict, Tuple, Set
 from datetime import time, datetime, timedelta
-from .constants import DAYS
+from constants import DAYS
 
 
 @dataclass

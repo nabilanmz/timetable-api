@@ -32,14 +32,10 @@ class DatabaseSeeder extends Seeder
             'is_admin' => true,
         ]);
 
-        // Create a specific number of subjects and lecturers
-        Subject::factory()->count(10)->create();
-        Lecturer::factory()->count(5)->create();
-
         $this->call([
             DaySeeder::class,
             TimeSlotSeeder::class,
-            SectionSeeder::class, // This will now use the created subjects and lecturers
+            RealDataSeeder::class, // Use real university data
         ]);
     }
 }

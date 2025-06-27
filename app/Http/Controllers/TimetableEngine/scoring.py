@@ -7,8 +7,8 @@ based on various criteria like gaps between classes, day utilization, and user p
 
 from typing import List
 from datetime import datetime, timedelta
-from .models import Timetable, ScheduledClass
-from .constants import DAYS, IDEAL_GAP, MAX_GAP, MAX_CONSECUTIVE_CLASSES, SCORING_PROFILES
+from models import Timetable, ScheduledClass
+from constants import DAYS, IDEAL_GAP, MAX_GAP, MAX_CONSECUTIVE_CLASSES, SCORING_PROFILES
 
 
 class ScoreCalculator:
@@ -53,7 +53,7 @@ class ScoreCalculator:
     
     def calculate_preference_bonuses(self, timetable: Timetable) -> float:
         """Calculate bonuses based on user preferences."""
-        from .constants import PREFERRED_LECTURER_BONUS, PREFERRED_DAY_BONUS, PREFERRED_TIME_BONUS
+        from constants import PREFERRED_LECTURER_BONUS, PREFERRED_DAY_BONUS, PREFERRED_TIME_BONUS
         
         bonus = 0
         preferred_lecturers = self.user_preferences.get("preferred_lecturers", [])

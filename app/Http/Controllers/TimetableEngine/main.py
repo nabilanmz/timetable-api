@@ -14,11 +14,9 @@ import json
 from datetime import datetime, time
 from typing import Dict, Any
 
-from TimetableEngine import (
-    load_classes_from_json,
-    TimetableGenerator,
-    format_timetable_as_json
-)
+from data_loader import load_classes_from_json
+from genetic_algorithm import TimetableGenerator
+from formatter import format_timetable_as_json
 
 
 def parse_time_preferences(user_prefs: Dict[str, Any]) -> Dict[str, Any]:

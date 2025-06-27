@@ -1,0 +1,77 @@
+{
+    "classes": [
+        {
+            "id": "3639183e-a60a-47a2-97d4-e58d81a665b6",
+            "subject": null,
+            "section_number": "FCIA",
+            "activity": "Tutorial",
+            "lecturer": "Siti Fazariah Hashim",
+            "day": "Monday",
+            "start_time": "17:00:00",
+            "end_time": "18:00:00",
+            "venue": "CQCR2002",
+            "tied_to": [
+                "FCI1"
+            ]
+        },
+        {
+            "id": "c59e4688-af36-40ab-b466-d8eb0d916677",
+            "subject": null,
+            "section_number": "FCI1",
+            "activity": "Lecture",
+            "lecturer": "Siti Fazariah Hashim",
+            "day": "Monday",
+            "start_time": "15:00:00",
+            "end_time": "18:00:00",
+            "venue": "CQCR2002",
+            "tied_to": [
+                "FCIA"
+            ]
+        },
+        {
+            "id": "c6eddd35-ce3c-4d1b-9895-d4e49a9953ea",
+            "subject": null,
+            "section_number": "FCIB",
+            "activity": "Tutorial",
+            "lecturer": "Siti Fazariah Hashim",
+            "day": "Friday",
+            "start_time": "11:00:00",
+            "end_time": "12:00:00",
+            "venue": "CQCR2002",
+            "tied_to": [
+                "FCI2"
+            ]
+        },
+        {
+            "id": "eaaf6f66-406f-45ee-b96e-b2dbfe4b1b48",
+            "subject": null,
+            "section_number": "FCI2",
+            "activity": "Lecture",
+            "lecturer": "Siti Fazariah Hashim",
+            "day": "Friday",
+            "start_time": "09:00:00",
+            "end_time": "12:00:00",
+            "venue": "CQCR2002",
+            "tied_to": [
+                "FCIB"
+            ]
+        }
+    ],
+    "preferences": {
+        "subjects": [
+            null
+        ],
+        "preferred_lecturers": [],
+        "preferred_days": [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday"
+        ],
+        "preferred_start": "08:00:00",
+        "preferred_end": "18:00:00",
+        "schedule_style": "compact",
+        "enforce_ties": true
+    }
+}

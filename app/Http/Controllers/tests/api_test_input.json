@@ -1,61 +1,75 @@
 {
-  "classes": [
-    {
-      "code": "CS101",
-      "subject": "Computer Science",
-      "activity": "Lecture",
-      "section": "A",
-      "days": "Monday",
-      "start_time": "09:00:00",
-      "end_time": "10:00:00",
-      "venue": "LT1",
-      "tied_to": ["T1", "T2"],
-      "lecturer": "Dr. Smith"
-    },
-    {
-      "code": "CS101",
-      "subject": "Computer Science",
-      "activity": "Tutorial",
-      "section": "T1",
-      "days": "Tuesday",
-      "start_time": "11:00:00",
-      "end_time": "12:00:00",
-      "venue": "Lab1",
-      "tied_to": [],
-      "lecturer": "Dr. Smith"
-    },
-    {
-      "code": "MATH201",
-      "subject": "Mathematics",
-      "activity": "Lecture",
-      "section": "B",
-      "days": "Wednesday",
-      "start_time": "14:00:00",
-      "end_time": "15:00:00",
-      "venue": "LT2",
-      "tied_to": ["T3"],
-      "lecturer": "Prof. Jones"
-    },
-    {
-      "code": "MATH201",
-      "subject": "Mathematics",
-      "activity": "Tutorial",
-      "section": "T3",
-      "days": "Thursday",
-      "start_time": "10:00:00",
-      "end_time": "11:00:00",
-      "venue": "Room1",
-      "tied_to": [],
-      "lecturer": "Prof. Jones"
+    "classes": [
+        {
+            "code": "CS101",
+            "subject": "Computer Science",
+            "activity": "Lecture",
+            "section": "A",
+            "days": "Monday",
+            "start_time": "09:00:00",
+            "end_time": "10:00:00",
+            "venue": "LT1",
+            "tied_to": [
+                "T1",
+                "T2"
+            ],
+            "lecturer": "Dr. Smith"
+        },
+        {
+            "code": "CS101",
+            "subject": "Computer Science",
+            "activity": "Tutorial",
+            "section": "T1",
+            "days": "Tuesday",
+            "start_time": "11:00:00",
+            "end_time": "12:00:00",
+            "venue": "Lab1",
+            "tied_to": [],
+            "lecturer": "Dr. Smith"
+        },
+        {
+            "code": "MATH201",
+            "subject": "Mathematics",
+            "activity": "Lecture",
+            "section": "B",
+            "days": "Wednesday",
+            "start_time": "14:00:00",
+            "end_time": "15:00:00",
+            "venue": "LT2",
+            "tied_to": [
+                "T3"
+            ],
+            "lecturer": "Prof. Jones"
+        },
+        {
+            "code": "MATH201",
+            "subject": "Mathematics",
+            "activity": "Tutorial",
+            "section": "T3",
+            "days": "Thursday",
+            "start_time": "10:00:00",
+            "end_time": "11:00:00",
+            "venue": "Room1",
+            "tied_to": [],
+            "lecturer": "Prof. Jones"
+        }
+    ],
+    "preferences": {
+        "subjects": [
+            "Computer Science",
+            "Mathematics"
+        ],
+        "preferred_lecturers": [
+            "Dr. Smith"
+        ],
+        "preferred_days": [
+            "Monday",
+            "Tuesday",
+            "Wednesday"
+        ],
+        "preferred_start": "09:00:00",
+        "preferred_end": "17:00:00",
+        "schedule_style": "compact",
+        "enforce_ties": true
     }
-  ],
-  "preferences": {
-    "subjects": ["Computer Science", "Mathematics"],
-    "preferred_lecturers": ["Dr. Smith"],
-    "preferred_days": ["Monday", "Tuesday", "Wednesday"],
-    "preferred_start": "09:00:00",
-    "preferred_end": "17:00:00",
-    "schedule_style": "compact",
-    "enforce_ties": true
-  }
 }

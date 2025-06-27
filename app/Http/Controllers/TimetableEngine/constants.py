@@ -13,11 +13,14 @@ IDEAL_GAP = timedelta(hours=1)  # 1 hour gap is ideal
 MAX_GAP = timedelta(hours=2)  # More than 2 hours gap is not preferred
 
 # Genetic Algorithm parameters
-DEFAULT_GENERATIONS = 150
-DEFAULT_POPULATION_SIZE = 500
+DEFAULT_GENERATIONS = 20  # Reduced further for very fast response
+DEFAULT_POPULATION_SIZE = 50  # Reduced further for very fast response
 CROSSOVER_PROBABILITY = 0.8
-MUTATION_PROBABILITY = 0.2
+MUTATION_PROBABILITY = 0.3  # Increased for more exploration in fewer generations
 TOURNAMENT_SIZE = 3
+
+# Early termination threshold
+GOOD_FITNESS_THRESHOLD = 4000  # Lowered threshold for faster termination
 
 # Scoring weights for different schedule styles
 SCORING_PROFILES = {

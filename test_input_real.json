@@ -29,20 +29,6 @@
         {
             "code": "LDCW6123",
             "subject": "Fundamentals of Digital Competence for Programmers",
-            "activity": "Tutorial",
-            "section": "FCIB",
-            "days": "Friday",
-            "start_time": "11:00:00",
-            "end_time": "12:00:00",
-            "venue": "CQCR2002",
-            "tied_to": [
-                "FCI2"
-            ],
-            "lecturer": "Siti Fazariah Hashim"
-        },
-        {
-            "code": "LDCW6123",
-            "subject": "Fundamentals of Digital Competence for Programmers",
             "activity": "Lecture",
             "section": "FCI1",
             "days": "Monday",
@@ -51,6 +37,20 @@
             "venue": "CQCR2002",
             "tied_to": [
                 "FCIA"
+            ],
+            "lecturer": "Siti Fazariah Hashim"
+        },
+        {
+            "code": "LDCW6123",
+            "subject": "Fundamentals of Digital Competence for Programmers",
+            "activity": "Tutorial",
+            "section": "FCIB",
+            "days": "Friday",
+            "start_time": "11:00:00",
+            "end_time": "12:00:00",
+            "venue": "CQCR2002",
+            "tied_to": [
+                "FCI2"
             ],
             "lecturer": "Siti Fazariah Hashim"
         },

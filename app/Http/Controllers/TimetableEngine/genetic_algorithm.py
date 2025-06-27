@@ -6,16 +6,18 @@ populations of timetable configurations to find optimal solutions.
 """
 
 import random
+import sys
 from typing import List, Dict, Optional, Tuple
 import numpy as np
 from deap import base, creator, tools, algorithms
 
-from .models import Class, Timetable
-from .data_loader import group_classes_by_section
-from .scoring import ScoreCalculator
-from .constants import (
+from models import Class, Timetable
+from data_loader import group_classes_by_section
+from scoring import ScoreCalculator
+from constants import (
     BASE_SCORE, DEFAULT_GENERATIONS, DEFAULT_POPULATION_SIZE,
-    CROSSOVER_PROBABILITY, MUTATION_PROBABILITY, TOURNAMENT_SIZE
+    CROSSOVER_PROBABILITY, MUTATION_PROBABILITY, TOURNAMENT_SIZE,
+    GOOD_FITNESS_THRESHOLD
 )
 
 # Initialize DEAP (only create if not already created)
@@ -35,6 +37,7 @@ class TimetableGenerator:
         self.section_groups = group_classes_by_section(classes)
         self.gene_map = []
         self.score_calculator = ScoreCalculator(user_preferences)
+        self.fitness_cache = {}  # Cache for fitness evaluations
         self.setup_deap()
 
     def setup_deap(self):
@@ -155,9 +158,19 @@ class TimetableGenerator:
             indpb=0.1,
         )
         self.toolbox.register("select", tools.selTournament, tournsize=TOURNAMENT_SIZE)
+        
+        # Clone is a simple copy function
+        def clone_individual(ind):
+            return creator.Individual(ind)
+        self.toolbox.register("clone", clone_individual)
 
     def evaluate(self, individual: List[int]) -> Tuple[float,]:
         """Evaluate the fitness of an individual (timetable configuration)."""
+        # Use tuple for hashable cache key
+        cache_key = tuple(individual)
+        if cache_key in self.fitness_cache:
+            return (self.fitness_cache[cache_key],)
+        
         timetable = Timetable()
 
         # Decode the individual into sections to schedule
@@ -166,6 +179,7 @@ class TimetableGenerator:
         # Check for hard constraints (time clashes)
         for section in sections_to_schedule:
             if not timetable.can_add_section(section):
+                self.fitness_cache[cache_key] = 0
                 return (0,)  # Invalid timetable
             timetable.add_section(section)
 
@@ -178,6 +192,7 @@ class TimetableGenerator:
         score += self.score_calculator.calculate_gap_scores(timetable)
         score += self.score_calculator.calculate_streak_scores(timetable)
 
+        self.fitness_cache[cache_key] = score
         return (score,)
 
     def _decode_individual(self, individual: List[int]) -> List[List[Class]]:
@@ -217,17 +232,59 @@ class TimetableGenerator:
         stats.register("max", np.max)
         stats.register("min", np.min)
 
-        # Run the genetic algorithm
-        algorithms.eaSimple(
-            pop,
-            self.toolbox,
-            cxpb=CROSSOVER_PROBABILITY,
-            mutpb=MUTATION_PROBABILITY,
-            ngen=generations,
-            stats=stats,
-            halloffame=hof,
-            verbose=False,
-        )
+        # Custom evolution loop with early termination
+        best_fitness_last_5_gens = []
+        
+        for gen in range(generations):
+            # Evaluate the population
+            fitnesses = list(map(self.toolbox.evaluate, pop))
+            for ind, fit in zip(pop, fitnesses):
+                ind.fitness.values = fit
+            
+            # Update hall of fame and stats
+            hof.update(pop)
+            record = stats.compile(pop)
+            current_best = hof[0].fitness.values[0]
+            
+            # Track best fitness for stagnation detection
+            best_fitness_last_5_gens.append(current_best)
+            if len(best_fitness_last_5_gens) > 5:
+                best_fitness_last_5_gens.pop(0)
+            
+            # Print progress every 5 generations (more frequent for shorter runs)
+            if gen % 5 == 0 and gen > 0:  # Don't print at generation 0
+                print(f"Gen {gen}: Max={record['max']:.1f}, Avg={record['avg']:.1f}", file=sys.stderr)
+            
+            # Early termination conditions
+            if current_best >= GOOD_FITNESS_THRESHOLD:
+                print(f"Early termination at generation {gen} with fitness {current_best:.1f}", file=sys.stderr)
+                break
+            
+            # Stop if no improvement for 5 generations and we have a decent solution
+            if (len(best_fitness_last_5_gens) == 5 and 
+                max(best_fitness_last_5_gens) - min(best_fitness_last_5_gens) < 50 and
+                current_best > 3000):
+                print(f"Stopping due to stagnation at generation {gen} with fitness {current_best:.1f}", file=sys.stderr)
+                break
+            
+            # Select, crossover, and mutate for next generation
+            if gen < generations - 1:  # Don't evolve on the last generation
+                offspring = self.toolbox.select(pop, len(pop))
+                offspring = list(map(self.toolbox.clone, offspring))
+                
+                # Apply crossover and mutation
+                for child1, child2 in zip(offspring[::2], offspring[1::2]):
+                    if random.random() < CROSSOVER_PROBABILITY:
+                        self.toolbox.mate(child1, child2)
+                        del child1.fitness.values
+                        del child2.fitness.values
+                
+                for mutant in offspring:
+                    if random.random() < MUTATION_PROBABILITY:
+                        self.toolbox.mutate(mutant)
+                        del mutant.fitness.values
+                
+                pop[:] = offspring
 
         # Check if a valid solution was found
         if not hof or hof[0].fitness.values[0] == 0:
