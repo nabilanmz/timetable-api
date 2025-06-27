@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """
-Timetable Generator
+Timetable Generator Main Script
 
-A genetic algorithm-based timetable generator that creates optimal class schedules
-based on user preferences and constraints using the modular TimetableEngine.
+This is the main entry point for the timetable generation system.
+It reads JSON input from stdin and outputs a generated timetable as JSON to stdout.
+
+Usage:
+    echo '{"classes": [...], "preferences": {...}}' | python main.py
 """
 
 import sys
@@ -11,7 +14,6 @@ import json
 from datetime import datetime, time
 from typing import Dict, Any
 
-# Import from the new modular structure
 from TimetableEngine import (
     load_classes_from_json,
     TimetableGenerator,
@@ -38,33 +40,45 @@ def parse_time_preferences(user_prefs: Dict[str, Any]) -> Dict[str, Any]:
     return user_prefs
 
 
+def validate_input(input_data: Dict[str, Any]) -> None:
+    """Validate the input data structure."""
+    if not input_data.get("classes"):
+        raise ValueError("Missing 'classes' in JSON input.")
+    
+    if not input_data.get("preferences"):
+        raise ValueError("Missing 'preferences' in JSON input.")
+    
+    prefs = input_data["preferences"]
+    if not prefs.get("subjects"):
+        raise ValueError("Missing 'subjects' in preferences.")
+
+
 def main():
     """
     Main function to be called when the script is executed.
     Reads JSON from stdin, generates a timetable, and prints JSON to stdout.
     """
     try:
-        # 1. Read input data from stdin
+        # 1. Read and validate input data
         input_data = json.load(sys.stdin)
-        classes_data = input_data.get("classes")
-        user_prefs = input_data.get("preferences")
-
-        if not classes_data or not user_prefs:
-            raise ValueError("Missing 'classes' or 'preferences' in JSON input.")
+        validate_input(input_data)
+        
+        classes_data = input_data["classes"]
+        user_prefs = input_data["preferences"]
 
         # 2. Load and process class data
         classes = load_classes_from_json(classes_data)
         if not classes:
             raise ValueError("Could not load any valid classes from the provided data.")
 
-        # 3. Convert time strings in preferences to time objects
+        # 3. Parse time preferences
         user_prefs = parse_time_preferences(user_prefs)
 
         # 4. Generate the timetable
         generator = TimetableGenerator(classes, user_prefs)
-        best_timetable = generator.run(generations=150, pop_size=500)
+        best_timetable = generator.run()
 
-        # 5. Format and print the output
+        # 5. Format and output the result
         output_json = format_timetable_as_json(best_timetable)
         json.dump(output_json, sys.stdout, indent=4)
 

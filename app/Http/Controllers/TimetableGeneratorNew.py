@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Timetable Generator
+Timetable Generator - Updated to use modular structure
 
-A genetic algorithm-based timetable generator that creates optimal class schedules
-based on user preferences and constraints using the modular TimetableEngine.
+This is a compatibility wrapper that maintains the same interface as the original
+TimetableGenerator.py while using the new modular TimetableEngine.
 """
 
 import sys

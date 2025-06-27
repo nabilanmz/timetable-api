@@ -1,0 +1,41 @@
+{
+    "classes": [
+        {
+            "code": "CS101",
+            "subject": "Computer Science",
+            "activity": "Lecture",
+            "section": "A",
+            "days": "Monday",
+            "start_time": "09:00:00",
+            "end_time": "10:00:00",
+            "venue": "LT1",
+            "tied_to": [
+                "T1"
+            ],
+            "lecturer": "Dr. Smith"
+        },
+        {
+            "code": "CS101",
+            "subject": "Computer Science",
+            "activity": "Tutorial",
+            "section": "T1",
+            "days": "Tuesday",
+            "start_time": "14:00:00",
+            "end_time": "15:00:00",
+            "venue": "TR1",
+            "tied_to": [],
+            "lecturer": "TA Johnson"
+        }
+    ],
+    "preferences": {
+        "subjects": [
+            "Computer Science"
+        ],
+        "schedule_style": "compact",
+        "enforce_ties": true,
+        "preferred_days": [],
+        "preferred_lecturers": [],
+        "preferred_start": "09:00:00",
+        "preferred_end": "17:00:00"
+    }
+}
