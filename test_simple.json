@@ -1,0 +1,59 @@
+{
+    "classes": [
+        {
+            "code": "LMPU3192",
+            "subject": "Falsafah dan Isu Semasa",
+            "activity": "Lecture",
+            "section": "FCI1",
+            "days": "Thursday",
+            "start_time": "10:00:00",
+            "end_time": "12:00:00",
+            "venue": "CNMX1001",
+            "tied_to": [],
+            "lecturer": "Hazamza'Em Husin"
+        },
+        {
+            "code": "LDCW6123",
+            "subject": "Fundamentals of Digital Competence for Programmers",
+            "activity": "Lecture",
+            "section": "FCI1",
+            "days": "Monday",
+            "start_time": "15:00:00",
+            "end_time": "18:00:00",
+            "venue": "CQCR2002",
+            "tied_to": ["FCIA"],
+            "lecturer": "Siti Fazariah Hashim"
+        },
+        {
+            "code": "LMPU3212",
+            "subject": "Bahasa Kebangsaan A",
+            "activity": "Lecture",
+            "section": "FCI1",
+            "days": "Tuesday",
+            "start_time": "16:00:00",
+            "end_time": "18:00:00",
+            "venue": "CQMX0001",
+            "tied_to": [],
+            "lecturer": "Yong Chyn Chye"
+        }
+    ],
+    "preferences": {
+        "subjects": [
+            "Falsafah dan Isu Semasa",
+            "Fundamentals of Digital Competence for Programmers",
+            "Bahasa Kebangsaan A"
+        ],
+        "preferred_lecturers": [],
+        "preferred_days": [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday"
+        ],
+        "preferred_start": "08:00:00",
+        "preferred_end": "18:00:00",
+        "schedule_style": "compact",
+        "enforce_ties": false
+    }
+}

@@ -57,16 +57,14 @@ class GeneratedTimetableController extends Controller
             'preferences' => 'required|array',
             'preferences.subjects' => 'required|array',
             'preferences.subjects.*' => 'exists:subjects,id',
-            'preferences.sections' => 'sometimes|array',
-            'preferences.sections.*' => 'exists:sections,id',
+            'preferences.days' => 'required|array',
+            'preferences.days.*' => 'exists:days,id',
+            'preferences.start_time' => 'required|date_format:H:i',
+            'preferences.end_time' => 'required|date_format:H:i|after:preferences.start_time',
+            'preferences.enforce_ties' => 'required|string|in:yes,no',
             'preferences.lecturers' => 'sometimes|array',
             'preferences.lecturers.*' => 'exists:lecturers,id',
-            'preferences.days' => 'sometimes|array',
-            'preferences.days.*' => 'exists:days,id',
-            'preferences.start_time' => 'sometimes|date_format:H:i',
-            'preferences.end_time' => 'sometimes|date_format:H:i|after:preferences.start_time',
-            'preferences.max_days_per_week' => 'sometimes|integer|min:1|max:7',
-            'preferences.schedule_style' => 'sometimes|string|in:compact,spaced_out',
+            'preferences.mode' => 'required|integer|in:1,2', // 1=compact, 2=spaced_out
         ]);
 
         if ($validator->fails()) {
@@ -76,58 +74,48 @@ class GeneratedTimetableController extends Controller
         $user = $request->user();
         $preferences = $validator->validated()['preferences'];
 
-        // 1. Collect class data from Section model, filtering based on user input
-        $classQuery = Section::with(['subject', 'lecturer']);
+        // 1. Generate available sections based on user criteria
+        $availableSections = $this->generateAvailableSections($preferences);
 
-        if (!empty($preferences['sections'])) {
-            // If user selected specific sections, use only those
-            $classQuery->whereIn('id', $preferences['sections']);
-        } else {
-            // Otherwise, use all sections from the selected subjects
-            $classQuery->whereIn('subject_id', $preferences['subjects']);
+        if (empty($availableSections)) {
+            return response()->json(['message' => 'No valid sections can be generated for the selected criteria.'], 422);
         }
 
-        $classes = $classQuery->get();
-
-        if ($classes->isEmpty()) {
-            return response()->json(['message' => 'No classes found for the selected criteria.'], 422);
-        }
-
+        // 2. Prepare subject and lecturer names for preferences
         $subjectNames = Subject::whereIn('id', $preferences['subjects'])->pluck('name')->all();
         $lecturerNames = isset($preferences['lecturers']) ? Lecturer::whereIn('id', $preferences['lecturers'])->pluck('name')->all() : [];
-        $dayNames = isset($preferences['days']) ? Day::whereIn('id', $preferences['days'])->pluck('name')->all() : [];
-
-        // If specific sections are chosen, other preferences can create impossible constraints.
-        // For example, selecting a section on Monday but preferring Tuesday.
-        // We'll clear these conflicting preferences if sections are explicitly selected.
-        if (!empty($preferences['sections'])) {
-            $subjectNames = []; // Also clear subjects to avoid conflicts
-            $lecturerNames = [];
-            $dayNames = [];
-            $preferences['start_time'] = null;
-            $preferences['end_time'] = null;
-        }
+        $dayNames = Day::whereIn('id', $preferences['days'])->pluck('name')->all();
 
         // 3. Transform preferences into the format expected by the Python script
+        $scheduleStyle = $preferences['mode'] == 1 ? 'compact' : 'spaced_out';
+        $enforceTies = $preferences['enforce_ties'] === 'yes';
+        
         $scriptPreferences = [
             'subjects' => $subjectNames,
             'preferred_lecturers' => $lecturerNames,
             'preferred_days' => $dayNames,
-            'preferred_start' => isset($preferences['start_time']) ? $preferences['start_time'] . ':00' : null,
-            'preferred_end' => isset($preferences['end_time']) ? $preferences['end_time'] . ':00' : null,
-            'max_days' => $preferences['max_days_per_week'] ?? 5,
-            'schedule_style' => $preferences['schedule_style'] ?? 'compact',
-            'enforce_ties' => true, // Assuming student view, so ties are enforced
+            'preferred_start' => $preferences['start_time'] . ':00',
+            'preferred_end' => $preferences['end_time'] . ':00',
+            'schedule_style' => $scheduleStyle,
+            'enforce_ties' => $enforceTies,
         ];
 
         // 4. Map class data into the format expected by the Python script
-        $classesData = $classes->map(function ($section) {
-            $activity = 'Lecture';
-            if (str_starts_with($section->section_number, 'T')) {
-                $activity = 'Tutorial';
+        $classesData = collect($availableSections)->map(function ($section) {
+            // Use the activity field from the database
+            $activity = $section->activity ?? 'Lecture';
+            
+            // Get tied sections - use the tied_to field if available
+            $tiedTo = [];
+            if ($section->tied_to && is_array($section->tied_to)) {
+                $tiedTo = $section->tied_to;
+            } elseif ($section->tied_to && is_string($section->tied_to)) {
+                // Handle comma-separated tied sections
+                $tiedTo = array_map('trim', explode(',', $section->tied_to));
+                $tiedTo = array_filter($tiedTo); // Remove empty values
             }
+            
             return [
-                'id' => $section->id,
                 'code' => $section->subject->code,
                 'subject' => $section->subject->name,
                 'activity' => $activity,
@@ -135,9 +123,9 @@ class GeneratedTimetableController extends Controller
                 'days' => $section->day_of_week,
                 'start_time' => $section->start_time,
                 'end_time' => $section->end_time,
-                'venue' => $section->venue,
-                'tied_to' => [],
-                'lecturer' => $section->lecturer ? $section->lecturer->name : 'N/A',
+                'venue' => $section->venue ?? 'TBD',
+                'tied_to' => $tiedTo,
+                'lecturer' => $section->lecturer ? $section->lecturer->name : 'TBD',
             ];
         });
 
@@ -240,5 +228,48 @@ class GeneratedTimetableController extends Controller
         $timetable = GeneratedTimetable::where('user_id', $user->id)->where('active', true)->firstOrFail();
 
         return response()->json($timetable);
+    }
+
+    /**
+     * Generate all available sections based on user preferences
+     * This creates the dynamic sections that will be used for timetable optimization
+     */
+    private function generateAvailableSections($preferences)
+    {
+        // Get base query for sections filtered by user criteria
+        $query = Section::with(['subject', 'lecturer'])
+            ->whereHas('subject', function ($q) use ($preferences) {
+                $q->whereIn('id', $preferences['subjects']);
+            });
+
+        // Filter by preferred days if specified
+        if (!empty($preferences['days'])) {
+            $dayNames = Day::whereIn('id', $preferences['days'])->pluck('name')->toArray();
+            $query->whereIn('day_of_week', $dayNames);
+        }
+
+        // Filter by time range
+        $query->where('start_time', '>=', $preferences['start_time'] . ':00')
+              ->where('end_time', '<=', $preferences['end_time'] . ':00');
+
+        // Filter by preferred lecturers if specified
+        if (!empty($preferences['lecturers'])) {
+            $query->whereIn('lecturer_id', $preferences['lecturers']);
+        }
+
+        // Get all matching sections
+        $sections = $query->get();
+
+        // Group sections by subject to ensure we have complete course offerings
+        $sectionsBySubject = $sections->groupBy('subject_id');
+        $availableSections = collect();
+
+        foreach ($sectionsBySubject as $subjectId => $subjectSections) {
+            // For now, treat all sections as valid options for the genetic algorithm
+            // The algorithm will determine the best combination
+            $availableSections = $availableSections->merge($subjectSections);
+        }
+
+        return $availableSections->unique('id')->values()->all();
     }
 }

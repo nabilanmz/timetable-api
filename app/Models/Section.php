@@ -38,12 +38,18 @@ class Section extends Model
     protected $fillable = [
         'subject_id',
         'section_number',
+        'activity',
         'lecturer_id',
         'start_time',
         'end_time',
         'day_of_week',
         'venue',
         'capacity',
+        'tied_to',
+    ];
+
+    protected $casts = [
+        'tied_to' => 'array',
     ];
 
     public function subject()
@@ -53,7 +59,7 @@ class Section extends Model
 
     public function lecturer()
     {
-        return $this->belongsTo(User::class, 'lecturer_id');
+        return $this->belongsTo(Lecturer::class, 'lecturer_id');
     }
 
     public function enrollments()
